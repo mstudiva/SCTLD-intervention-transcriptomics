@@ -27,7 +27,7 @@ library(DESeq2)
 library(arrayQualityMetrics)
 
 #read in counts
-counts = read.table("allcounts_intervention_host.txt")
+counts = read.table("allcounts_intervention_mcav_host.txt")
 
 # how many genes we have total?
 nrow(counts) 
@@ -257,14 +257,14 @@ venn=venn.diagram(
   x = pairwise,
   filename=NULL,
   col = "transparent",
-  fill = c("#f6e8c3", "#8c510a", "#01665e", "#5ab4ac"),
+  fill = c("#01665e", "#5ab4ac", "#8c510a","#f6e8c3"),
   alpha = 0.5,
-  label.col = c("#01665e","white","#35978f","white","white","black","white", "white","#dfc27d","white","white","white","white","#8c510a","white"),
+  label.col = c("#8c510a","white","#dfc27d","white","white","black","white", "white","#01665e","white","white","white","white","#35978f","white"),
   cex = 3.5,
   fontfamily = "sans",
   fontface = "bold",
   cat.default.pos = "text",
-  cat.col =c("#dfc27d", "#8c510a", "#01665e", "#5ab4ac"),
+  cat.col =c("#01665e","#35978f","#8c510a","#dfc27d"),
   cat.cex = 3.5,
   cat.fontfamily = "sans",
   cat.just = list(c(0,0.5),c(0.75,0.5),c(0.5,0.5),c(0.5,0.5))
