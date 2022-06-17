@@ -3,6 +3,9 @@
 library(tidyverse)
 library(VennDiagram)
 library(pheatmap)
+library(reshape2)
+library(RColorBrewer)
+
 
 #### ORTHOFINDER ####
 
@@ -42,7 +45,7 @@ mcav_nai_healthy_lpv <- read.csv(file = "../DESeq2/mcav2015/nai_healthy_lpv.csv"
 
 #### DEG MATCHING ####
 
-# This section of code does several things: 1) rename common orthologs, 2) join with -log10(pval), 3) filter by 0.1 pval cutoff (log10(0.1)=1), 4) then add ofav and mcav gene annotations
+# This section of code does several things: 1) rename common orthologs, 2) join with -log10(pval), 3) filter by 0.1 pval cutoff (log10(0.1)=1), 4) adds ofav and mcav gene annotations, and 5) then pulls on corresponding KOG classes
 
 # diseased vs healthy for both species
 orthologs %>%
@@ -66,6 +69,18 @@ orthologs %>%
                        quote="", fill=FALSE) %>%
               mutate(gene = V1,
                      annot_mcav = V2) %>%
+              dplyr::select(-V1, -V2), by = c("Protein_mcav" = "gene")) %>%
+  left_join(read.table(file = "../../annotate/ofav/Ofaveolata_iso2kogClass.tab",
+                       sep = "\t",
+                       quote="", fill=FALSE) %>%
+              mutate(gene = V1,
+                     KOG_ofav = V2) %>%
+              dplyr::select(-V1, -V2), by = c("Protein_ofav" = "gene")) %>%
+  left_join(read.table(file = "../../annotate/mcav2015/Mcavernosa2015_iso2kogClass.tab",
+                       sep = "\t",
+                       quote="", fill=FALSE) %>%
+              mutate(gene = V1,
+                     KOG_mcav = V2) %>%
               dplyr::select(-V1, -V2), by = c("Protein_mcav" = "gene")) -> diseased_healthy
 diseased_healthy$Orthogroup <- make.unique(diseased_healthy$Orthogroup, sep = "_") 
 
@@ -91,6 +106,18 @@ orthologs %>%
                        quote="", fill=FALSE) %>%
               mutate(gene = V1,
                      annot_mcav = V2) %>%
+              dplyr::select(-V1, -V2), by = c("Protein_mcav" = "gene")) %>%
+  left_join(read.table(file = "../../annotate/ofav/Ofaveolata_iso2kogClass.tab",
+                       sep = "\t",
+                       quote="", fill=FALSE) %>%
+              mutate(gene = V1,
+                     KOG_ofav = V2) %>%
+              dplyr::select(-V1, -V2), by = c("Protein_ofav" = "gene")) %>%
+  left_join(read.table(file = "../../annotate/mcav2015/Mcavernosa2015_iso2kogClass.tab",
+                       sep = "\t",
+                       quote="", fill=FALSE) %>%
+              mutate(gene = V1,
+                     KOG_mcav = V2) %>%
               dplyr::select(-V1, -V2), by = c("Protein_mcav" = "gene")) -> diseased_nai
 diseased_nai$Orthogroup <- make.unique(diseased_nai$Orthogroup, sep = "_") 
 
@@ -116,8 +143,73 @@ orthologs %>%
                        quote="", fill=FALSE) %>%
               mutate(gene = V1,
                      annot_mcav = V2) %>%
+              dplyr::select(-V1, -V2), by = c("Protein_mcav" = "gene")) %>%
+  left_join(read.table(file = "../../annotate/ofav/Ofaveolata_iso2kogClass.tab",
+                       sep = "\t",
+                       quote="", fill=FALSE) %>%
+              mutate(gene = V1,
+                     KOG_ofav = V2) %>%
+              dplyr::select(-V1, -V2), by = c("Protein_ofav" = "gene")) %>%
+  left_join(read.table(file = "../../annotate/mcav2015/Mcavernosa2015_iso2kogClass.tab",
+                       sep = "\t",
+                       quote="", fill=FALSE) %>%
+              mutate(gene = V1,
+                     KOG_mcav = V2) %>%
               dplyr::select(-V1, -V2), by = c("Protein_mcav" = "gene")) -> nai_healthy
 nai_healthy$Orthogroup <- make.unique(nai_healthy$Orthogroup, sep = "_") 
+
+
+#### KOG MATCHING ####
+
+# filtering and summarizing DEGs by KOG class for high-level comparisons between species
+diseased_healthy %>%
+  mutate(KOG_mcav = replace(KOG_mcav, KOG_mcav == "", NA)) %>%
+  filter(lpv_mcav >= 1) %>%
+  count(KOG_mcav) %>%
+  rename("KOG" = KOG_mcav, "mcav_up" = n) -> KOG_mcav_up
+
+diseased_healthy %>%
+  mutate(KOG_mcav = replace(KOG_mcav, KOG_mcav == "", NA)) %>%
+  filter(lpv_mcav <= -1) %>%
+  count(KOG_mcav) %>%
+  rename("KOG" = KOG_mcav, "mcav_down" = n) -> KOG_mcav_down
+
+diseased_healthy %>%
+  mutate(KOG_ofav = replace(KOG_ofav, KOG_ofav == "", NA)) %>%
+  filter(lpv_ofav >= 1) %>%
+  count(KOG_ofav) %>%
+  rename("KOG" = KOG_ofav, "ofav_up" = n) -> KOG_ofav_up
+
+diseased_healthy %>%
+  mutate(KOG_ofav = replace(KOG_ofav, KOG_ofav == "", NA)) %>%
+  filter(lpv_ofav <= -1) %>%
+  count(KOG_ofav) %>%
+  rename("KOG" = KOG_ofav, "ofav_down" = n) -> KOG_ofav_down
+
+# joining all KOG class sums in a single dataframe
+KOG_mcav_up %>%
+  inner_join(KOG_ofav_up, by = "KOG") %>%
+  inner_join(KOG_mcav_down, by = "KOG") %>%
+  inner_join(KOG_ofav_down, by = "KOG") -> KOG_match
+
+# melting dataframe for plotting
+KOG_match %>%
+  melt(id = "KOG") %>%
+  rename(comparison = variable, sum = value) -> KOG_melt
+
+# creating a custom color palette
+colorCount = length(unique(KOG_match$KOG))
+getPalette = colorRampPalette(brewer.pal(8, "Accent"))
+
+# relative abundance plot
+KOG_sum <- ggplot(KOG_melt, aes(fill = KOG, y = sum, x = comparison)) +
+  geom_bar(position="stack", stat="identity") +
+  scale_fill_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(colorCount)) +
+  labs(x = "Comparison",
+       y = "Number of DEGs") +
+  theme_classic()
+KOG_sum
+ggsave("orthofinder KOG abundance.pdf", plot= KOG_sum, width=8, height=6, units="in", dpi=300)
 
 
 #### VENN DIAGRAMS ####
@@ -174,63 +266,63 @@ diseased_healthy %>%
 
 #### IF FOLLOWING THE 'VSD by SPECIES' SECTION, SKIP FROM HERE DOWN ####
 
-# loading gene counts for each species, then replacing species-specific gene IDs with orthogroup IDs, then removing NAI samples
-load("../DESeq2/ofav/initial.RData")
-counts_ofav <- subset(countData, rownames(countData) %in% diseased_healthy$Protein_ofav)
-design_ofav <- design 
-
-load("../DESeq2/mcav2015/initial.RData")
-counts_mcav <- subset(countData, rownames(countData) %in% diseased_healthy$Protein_mcav)
-design_mcav <- design 
-
-# have to detach DESeq2 because it contains some functions with the same name as dplyr
-detach("package:DESeq2", unload=TRUE)
-library(tidyverse)
-
-# combining the design data frames
-design_comb <- rbind(design_mcav, design_ofav)
-design_comb$id <- as.factor(gsub("-",".", design_comb$id))
-design_comb$full_id <- paste(design_comb$id,design_comb$species,design_comb$fate,sep=".")
-
-# replacing gene names with orthogroups
-counts_ofav %>%
-  rownames_to_column(var = "Protein_ofav") %>%
-  mutate(Protein_ofav = if_else(Protein_ofav %in% diseased_healthy$Protein_ofav, diseased_healthy$Orthogroup, diseased_healthy$Orthogroup)) %>%
-  column_to_rownames(var = "Protein_ofav") -> counts_ofav
-
-counts_mcav %>%
-  rownames_to_column(var = "Protein_mcav") %>%
-  mutate(Protein_mcav = if_else(Protein_mcav %in% diseased_healthy$Protein_mcav, diseased_healthy$Orthogroup, diseased_healthy$Orthogroup)) %>%
-  column_to_rownames(var = "Protein_mcav") -> counts_mcav
-
-# combining the two count data frames, then replacing sample IDs with full IDs (ID + factors)
-counts_comb <- cbind(counts_mcav, counts_ofav)
-colnames(counts_comb) = design_comb$full_id
-
-# removing NAI samples and reordering design dataframe for plotting
-design_comb <- design_comb[(design_comb$fate != "nai"),]
-design_comb$species_fate <- paste(design_comb$species,design_comb$fate,sep=".")
-design_comb$species_fate <- factor(design_comb$species_fate, levels = c("Mcav.healthy","Mcav.diseased","Ofav.healthy","Ofav.diseased"))
-design_comb <- design_comb[order(design_comb$species_fate),]
-
-# reordering counts matrix according to design dataframe
-counts_comb %>%
-  select(-contains("nai")) -> counts_comb
-head(counts_comb)
-counts_comb<- counts_comb[,order(design_comb$full_id)]
-tail(counts_comb)
-
-library(DESeq2)
-
-# making a combined DESeq model
-rownames(design_comb) = design_comb$full_id
-dds = DESeqDataSetFromMatrix(countData=counts_comb, colData=design_comb, design=~ genotype+fate)
-
-# creating variance stabilized array of counts for heatmap
-Vsd=varianceStabilizingTransformation(dds)
-vsd=assay(Vsd)
-
-save(orthologs, diseased_healthy, diseased_nai, nai_healthy, mcav_up, mcav_down, ofav_up, ofav_down, counts_ofav, design_ofav, counts_mcav, design_mcav, design_comb, counts_comb, vsd, file = "orthofinder_DEGs.RData")
+# # loading gene counts for each species, then replacing species-specific gene IDs with orthogroup IDs, then removing NAI samples
+# load("../DESeq2/ofav/initial.RData")
+# counts_ofav <- subset(countData, rownames(countData) %in% diseased_healthy$Protein_ofav)
+# design_ofav <- design 
+# 
+# load("../DESeq2/mcav2015/initial.RData")
+# counts_mcav <- subset(countData, rownames(countData) %in% diseased_healthy$Protein_mcav)
+# design_mcav <- design 
+# 
+# # have to detach DESeq2 because it contains some functions with the same name as dplyr
+# detach("package:DESeq2", unload=TRUE)
+# library(tidyverse)
+# 
+# # combining the design data frames
+# design_comb <- rbind(design_mcav, design_ofav)
+# design_comb$id <- as.factor(gsub("-",".", design_comb$id))
+# design_comb$full_id <- paste(design_comb$id,design_comb$species,design_comb$fate,sep=".")
+# 
+# # replacing gene names with orthogroups
+# counts_ofav %>%
+#   rownames_to_column(var = "Protein_ofav") %>%
+#   mutate(Protein_ofav = if_else(Protein_ofav %in% diseased_healthy$Protein_ofav, diseased_healthy$Orthogroup, diseased_healthy$Orthogroup)) %>%
+#   column_to_rownames(var = "Protein_ofav") -> counts_ofav
+# 
+# counts_mcav %>%
+#   rownames_to_column(var = "Protein_mcav") %>%
+#   mutate(Protein_mcav = if_else(Protein_mcav %in% diseased_healthy$Protein_mcav, diseased_healthy$Orthogroup, diseased_healthy$Orthogroup)) %>%
+#   column_to_rownames(var = "Protein_mcav") -> counts_mcav
+# 
+# # combining the two count data frames, then replacing sample IDs with full IDs (ID + factors)
+# counts_comb <- cbind(counts_mcav, counts_ofav)
+# colnames(counts_comb) = design_comb$full_id
+# 
+# # removing NAI samples and reordering design dataframe for plotting
+# design_comb <- design_comb[(design_comb$fate != "nai"),]
+# design_comb$species_fate <- paste(design_comb$species,design_comb$fate,sep=".")
+# design_comb$species_fate <- factor(design_comb$species_fate, levels = c("Mcav.healthy","Mcav.diseased","Ofav.healthy","Ofav.diseased"))
+# design_comb <- design_comb[order(design_comb$species_fate),]
+# 
+# # reordering counts matrix according to design dataframe
+# counts_comb %>%
+#   select(-contains("nai")) -> counts_comb
+# head(counts_comb)
+# counts_comb<- counts_comb[,order(design_comb$full_id)]
+# tail(counts_comb)
+# 
+# library(DESeq2)
+# 
+# # making a combined DESeq model
+# rownames(design_comb) = design_comb$full_id
+# dds = DESeqDataSetFromMatrix(countData=counts_comb, colData=design_comb, design=~ genotype+fate)
+# 
+# # creating variance stabilized array of counts for heatmap
+# Vsd=varianceStabilizingTransformation(dds)
+# vsd=assay(Vsd)
+# 
+# save(orthologs, diseased_healthy, diseased_nai, nai_healthy, mcav_up, mcav_down, ofav_up, ofav_down, counts_ofav, design_ofav, counts_mcav, design_mcav, design_comb, counts_comb, vsd, file = "orthofinder_DEGs.RData")
 
 
 #### HEATMAPS ####
