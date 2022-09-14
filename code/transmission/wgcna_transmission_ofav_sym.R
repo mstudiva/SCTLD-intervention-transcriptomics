@@ -1,8 +1,10 @@
 #### PACKAGES ####
 
 # installing WGCNA:
-# source("http://bioconductor.org/biocLite.R")
-# biocLite(c("AnnotationDbi", "impute", "GO.db", "preprocessCore"))
+# if (!require("BiocManager", quietly = TRUE))
+#   install.packages("BiocManager")
+# BiocManager::install(version = "3.15")
+# BiocManager::install(c("AnnotationDbi", "impute", "GO.db", "preprocessCore"))
 # install.packages("flashClust")
 # install.packages("WGCNA",dependencies=TRUE)
 # repos="http://cran.us.r-project.org"
@@ -31,34 +33,35 @@ str(design)
 
 # assembling table of traits
 # coding genotype as binary (0/1, yes/no)
-BH=as.numeric(design$genotype=="BH")
-BW=as.numeric(design$genotype=="BW")
-CH=as.numeric(design$genotype=="CH")
-CW=as.numeric(design$genotype=="CW")
-PH=as.numeric(design$genotype=="PH")
-PW=as.numeric(design$genotype=="PW")
-RH=as.numeric(design$genotype=="RH")
-RW=as.numeric(design$genotype=="RW")
-WH=as.numeric(design$genotype=="WH")
-WW=as.numeric(design$genotype=="WW")
-YH=as.numeric(design$genotype=="YH")
-YW=as.numeric(design$genotype=="YW")
-BL=as.numeric(design$genotype=="BL")
-BZ=as.numeric(design$genotype=="BZ")
-CZ=as.numeric(design$genotype=="CZ")
-GZ=as.numeric(design$genotype=="GZ")
-LZ=as.numeric(design$genotype=="LZ")
-PZ=as.numeric(design$genotype=="PZ")
-RZ=as.numeric(design$genotype=="RZ")
-YZ=as.numeric(design$genotype=="YZ")
+# BH=as.numeric(design$genotype=="BH")
+# BW=as.numeric(design$genotype=="BW")
+# CH=as.numeric(design$genotype=="CH")
+# CW=as.numeric(design$genotype=="CW")
+# PH=as.numeric(design$genotype=="PH")
+# PW=as.numeric(design$genotype=="PW")
+# RH=as.numeric(design$genotype=="RH")
+# RW=as.numeric(design$genotype=="RW")
+# WH=as.numeric(design$genotype=="WH")
+# WW=as.numeric(design$genotype=="WW")
+# YH=as.numeric(design$genotype=="YH")
+# YW=as.numeric(design$genotype=="YW")
+# BL=as.numeric(design$genotype=="BL")
+# BZ=as.numeric(design$genotype=="BZ")
+# CZ=as.numeric(design$genotype=="CZ")
+# GZ=as.numeric(design$genotype=="GZ")
+# LZ=as.numeric(design$genotype=="LZ")
+# PZ=as.numeric(design$genotype=="PZ")
+# RZ=as.numeric(design$genotype=="RZ")
+# YZ=as.numeric(design$genotype=="YZ")
 
-sctld=as.numeric(design$treatment!="control")
+# sctld=as.numeric(design$treatment!="control")
 
 healthy=as.numeric(design$fate=="healthy")
 nai=as.numeric(design$fate=="nai")
 diseased=as.numeric(design$fate=="diseased")
 
-traits <- cbind(BH, BW, CH, CW, PH, PW, RH, RW, WH, WW, YH, YW, BL, BZ, CZ, GZ, LZ, PZ, RZ, YZ, sctld, healthy, nai, diseased, design[c(7)])
+# traits <- cbind(BH, BW, CH, CW, PH, PW, RH, RW, WH, WW, YH, YW, BL, BZ, CZ, GZ, LZ, PZ, RZ, YZ, sctld, healthy, nai, diseased, design[c(7)])
+traits <- cbind(healthy, nai, diseased, design[c(7)])
 traits
 
 
@@ -332,161 +335,161 @@ text(mct[rev(modLabels)]+labelShift,y=x,mct[rev(modLabels)],cex=0.9)
 # If it was first pass with no module merging, this is where you examine your heatmap and dendrogram of module eigengenes to see where you would like to set cut height (MEDissThres parameter) in the previous section to merge modules that are telling the same story for your trait data 
 # A good way to do it is to find a group of similar modules in the heat map and then see at which tree height they connect in the dendrogram
 
-#### GO BACK AND MERGE ####
+#### DO NOT PROCEED, POOR MODULE CLUSTERING ####
 
 
 #### MODULE MEMBERSHIP SCATTERPLOTS ####
 
-# scatterplots of gene significance (correlation-based) vs kME
-load(file = "networkdata_signed.RData")
-load(file = "wgcnaData.RData");
-traits
-table(moduleColors)
-
-# run for each of these statements individually
-# whichTrait="healthy"
-# whichTrait="nai"
-
-nGenes = ncol(datt);
-nSamples = nrow(datt);
-selTrait = as.data.frame(traits[,whichTrait]);
-names(selTrait) = whichTrait
-# names (colors) of the modules
-modNames = substring(names(MEs), 3)
-geneModuleMembership = as.data.frame(signedKME(datt, MEs));
-MMPvalue = as.data.frame(corPvalueStudent(as.matrix(geneModuleMembership), nSamples));
-names(geneModuleMembership) = paste("MM", modNames, sep="");
-names(MMPvalue) = paste("p.MM", modNames, sep="");
-geneTraitSignificance = as.data.frame(cor(datt, selTrait, use = "p"));
-GSPvalue = as.data.frame(corPvalueStudent(as.matrix(geneTraitSignificance), nSamples));
-names(geneTraitSignificance) = paste("GS.", names(selTrait), sep="");
-names(GSPvalue) = paste("p.GS.", names(selTrait), sep="");
-
-# selecting specific modules to plot (change depending on which trait you're looking at)
-# moduleCols=c("pink") # for healthy
-moduleCols=c("pink") # for nai
-
-quartz()
-# set par to be big enough for all significant module correlations, then run the next whichTrait and moduleCols statements above and repeat from the 'for' loop
-# par(mfrow=c(1,1)) # for healthy
-par(mfrow=c(1,1)) # for nai
-
-counter=0
-# shows correlations for all modules
-# for(module in modNames[1:length(modNames)]){
-# counter=counter+1
-# if (counter>9) {
-# 	quartz()
-# 	par(mfrow=c(3,3))
-# 	counter=1
+# # scatterplots of gene significance (correlation-based) vs kME
+# load(file = "networkdata_signed.RData")
+# load(file = "wgcnaData.RData");
+# traits
+# table(moduleColors)
+# 
+# # run for each of these statements individually
+# # whichTrait="healthy"
+# # whichTrait="nai"
+# 
+# nGenes = ncol(datt);
+# nSamples = nrow(datt);
+# selTrait = as.data.frame(traits[,whichTrait]);
+# names(selTrait) = whichTrait
+# # names (colors) of the modules
+# modNames = substring(names(MEs), 3)
+# geneModuleMembership = as.data.frame(signedKME(datt, MEs));
+# MMPvalue = as.data.frame(corPvalueStudent(as.matrix(geneModuleMembership), nSamples));
+# names(geneModuleMembership) = paste("MM", modNames, sep="");
+# names(MMPvalue) = paste("p.MM", modNames, sep="");
+# geneTraitSignificance = as.data.frame(cor(datt, selTrait, use = "p"));
+# GSPvalue = as.data.frame(corPvalueStudent(as.matrix(geneTraitSignificance), nSamples));
+# names(geneTraitSignificance) = paste("GS.", names(selTrait), sep="");
+# names(GSPvalue) = paste("p.GS.", names(selTrait), sep="");
+# 
+# # selecting specific modules to plot (change depending on which trait you're looking at)
+# # moduleCols=c("pink") # for healthy
+# moduleCols=c("pink") # for nai
+# 
+# quartz()
+# # set par to be big enough for all significant module correlations, then run the next whichTrait and moduleCols statements above and repeat from the 'for' loop
+# # par(mfrow=c(1,1)) # for healthy
+# par(mfrow=c(1,1)) # for nai
+# 
+# counter=0
+# # shows correlations for all modules
+# # for(module in modNames[1:length(modNames)]){
+# # counter=counter+1
+# # if (counter>9) {
+# # 	quartz()
+# # 	par(mfrow=c(3,3))
+# # 	counter=1
+# # }
+# # shows correlations for significant modules only as specified above
+# for (module in moduleCols) {
+#   column = match(module, modNames);
+#   moduleGenes = moduleColors==module;
+# column = match(module, modNames);
+# moduleGenes = moduleColors==module;
+# #trr="heat resistance"
+# verboseScatterplot(abs(geneModuleMembership[moduleGenes, column]),
+# abs(geneTraitSignificance[moduleGenes, 1]),
+# xlab = paste(module,"module membership"),
+# ylab = paste("GS for", whichTrait),
+# col = "grey50",mgp=c(2.3,1,0))
 # }
-# shows correlations for significant modules only as specified above
-for (module in moduleCols) {
-  column = match(module, modNames);
-  moduleGenes = moduleColors==module;
-column = match(module, modNames);
-moduleGenes = moduleColors==module;
-#trr="heat resistance"
-verboseScatterplot(abs(geneModuleMembership[moduleGenes, column]),
-abs(geneTraitSignificance[moduleGenes, 1]),
-xlab = paste(module,"module membership"),
-ylab = paste("GS for", whichTrait),
-col = "grey50",mgp=c(2.3,1,0))
-}
-
-
-#### EIGENGENE SANITY CHECK ####
-
-# eigengene-heatmap plot (sanity check - is the whole module driven by just one crazy sample?)
-# note: this part does not make much sense for unsigned modules
-load(file = "networkdata_signed.RData")
-load(file = "wgcnaData.RData");
-
-# run for each of these statements individually
-which.module="pink"
-
-datME=MEs
-datExpr=datt
-quartz()
-ME=datME[, paste("ME",which.module, sep="")]
-par(mfrow=c(2,1), mar=c(0.3, 5.5, 3, 2))
-plotMat(t(scale(datExpr[,moduleColors==which.module ]) ),
-nrgcols=30,rlabels=F,rcols=which.module,
-main=which.module, cex.main=2)
-par(mar=c(5, 4.2, 0, 0.7))
-barplot(ME, col=which.module, main="", cex.main=2,
-ylab="eigengene expression",xlab="sample")
-
-length(datExpr[1,moduleColors==which.module ]) # number of genes in chosen module
-
-# If individual samples appear to be driving expression of significant modules, they are likely outliers
-# count the array numbers and go back to the outlier detection section to remove outliers and rerun all code
-
-
-#### GO/KOG EXPORT ####
-
-# saving selected modules for GO and KOG analysis (two-parts: Fisher test, MWU test within-module)
-library(WGCNA)
-load(file = "networkdata_signed.RData") # moduleColors, MEs
-load(file = "wgcnaData.RData") # vsd table
-load(file = "data4wgcna.RData") # vsd table
-
-# calculating modul memberships for all genes for all modules
-allkME =as.data.frame(signedKME(datt, MEs)) 
-names(allkME)=gsub("kME","",names(allkME))
-
-# run for each of these statements individually
-whichModule="pink"
-
-table(moduleColors==whichModule) # how many genes are in it?
-
-# Saving data for Fisher-MWU combo test (GO_MWU)
-inModuleBinary=as.numeric(moduleColors==whichModule)
-combo=data.frame("gene"=row.names(vsd.wg),"Fish_kME"=allkME[,whichModule]*inModuleBinary)
-write.csv(combo,file=paste(whichModule,".csv",sep=""),row.names=F,quote=F)
-
-
-#### HEATMAPS ####
-
-# plotting heatmap for named top-kME genes
-library(WGCNA)
-load(file = "networkdata_signed.RData")
-load(file = "data4wgcna.RData") 
-load(file = "wgcnaData.RData");
-allkME =as.data.frame(signedKME(datt, MEs))
-gg=read.delim(file="Ofaveolata_Durusdinium_iso2geneName.tab",sep="\t")
-library(pheatmap)
-
-whichModule="pink"
-
-top=30 # number of named top-kME genes to plot
-
-datME=MEs
-datExpr=datt
-modcol=paste("kME",whichModule,sep="")
-sorted=vsd.wg[order(allkME[,modcol],decreasing=T),]
-head(sorted)
-# selection top N names genes, attaching gene names
-gnames=c();counts=0;hubs=c()
-for(i in 1:length(sorted[,1])) {
-	if (row.names(sorted)[i] %in% gg[,1]) { 
-		counts=counts+1
-		gn=gg[gg[,1]==row.names(sorted)[i],2]
-		gn=paste(gn,row.names(sorted)[i],sep=".")
-		if (gn %in% gnames) {
-			gn=paste(gn,counts,sep=".")
-		}
-		gnames=append(gnames,gn) 
-		hubs=data.frame(rbind(hubs,sorted[i,]))
-		if (counts==top) {break}
-	}
-} 
-row.names(hubs)=gnames
-
-contrasting = colorRampPalette(rev(c("chocolate1","#FEE090","grey10", "cyan3","cyan")))(100)
-contrasting2 = colorRampPalette(rev(c("chocolate1","chocolate1","#FEE090","grey10", "cyan3","cyan")))(100)
-contrasting3 = colorRampPalette(rev(c("chocolate1","#FEE090","grey10", "cyan3","cyan","cyan")))(100)
-
-# pdf(file="heatmap_top30_pink.pdf", height=6, width=42)
-# pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F)
-# dev.off()
+# 
+# 
+# #### EIGENGENE SANITY CHECK ####
+# 
+# # eigengene-heatmap plot (sanity check - is the whole module driven by just one crazy sample?)
+# # note: this part does not make much sense for unsigned modules
+# load(file = "networkdata_signed.RData")
+# load(file = "wgcnaData.RData");
+# 
+# # run for each of these statements individually
+# which.module="pink"
+# 
+# datME=MEs
+# datExpr=datt
+# quartz()
+# ME=datME[, paste("ME",which.module, sep="")]
+# par(mfrow=c(2,1), mar=c(0.3, 5.5, 3, 2))
+# plotMat(t(scale(datExpr[,moduleColors==which.module ]) ),
+# nrgcols=30,rlabels=F,rcols=which.module,
+# main=which.module, cex.main=2)
+# par(mar=c(5, 4.2, 0, 0.7))
+# barplot(ME, col=which.module, main="", cex.main=2,
+# ylab="eigengene expression",xlab="sample")
+# 
+# length(datExpr[1,moduleColors==which.module ]) # number of genes in chosen module
+# 
+# # If individual samples appear to be driving expression of significant modules, they are likely outliers
+# # count the array numbers and go back to the outlier detection section to remove outliers and rerun all code
+# 
+# 
+# #### GO/KOG EXPORT ####
+# 
+# # saving selected modules for GO and KOG analysis (two-parts: Fisher test, MWU test within-module)
+# library(WGCNA)
+# load(file = "networkdata_signed.RData") # moduleColors, MEs
+# load(file = "wgcnaData.RData") # vsd table
+# load(file = "data4wgcna.RData") # vsd table
+# 
+# # calculating modul memberships for all genes for all modules
+# allkME =as.data.frame(signedKME(datt, MEs)) 
+# names(allkME)=gsub("kME","",names(allkME))
+# 
+# # run for each of these statements individually
+# whichModule="pink"
+# 
+# table(moduleColors==whichModule) # how many genes are in it?
+# 
+# # Saving data for Fisher-MWU combo test (GO_MWU)
+# inModuleBinary=as.numeric(moduleColors==whichModule)
+# combo=data.frame("gene"=row.names(vsd.wg),"Fish_kME"=allkME[,whichModule]*inModuleBinary)
+# write.csv(combo,file=paste(whichModule,".csv",sep=""),row.names=F,quote=F)
+# 
+# 
+# #### HEATMAPS ####
+# 
+# # plotting heatmap for named top-kME genes
+# library(WGCNA)
+# load(file = "networkdata_signed.RData")
+# load(file = "data4wgcna.RData") 
+# load(file = "wgcnaData.RData");
+# allkME =as.data.frame(signedKME(datt, MEs))
+# gg=read.delim(file="Ofaveolata_Durusdinium_iso2geneName.tab",sep="\t")
+# library(pheatmap)
+# 
+# whichModule="pink"
+# 
+# top=30 # number of named top-kME genes to plot
+# 
+# datME=MEs
+# datExpr=datt
+# modcol=paste("kME",whichModule,sep="")
+# sorted=vsd.wg[order(allkME[,modcol],decreasing=T),]
+# head(sorted)
+# # selection top N names genes, attaching gene names
+# gnames=c();counts=0;hubs=c()
+# for(i in 1:length(sorted[,1])) {
+# 	if (row.names(sorted)[i] %in% gg[,1]) { 
+# 		counts=counts+1
+# 		gn=gg[gg[,1]==row.names(sorted)[i],2]
+# 		gn=paste(gn,row.names(sorted)[i],sep=".")
+# 		if (gn %in% gnames) {
+# 			gn=paste(gn,counts,sep=".")
+# 		}
+# 		gnames=append(gnames,gn) 
+# 		hubs=data.frame(rbind(hubs,sorted[i,]))
+# 		if (counts==top) {break}
+# 	}
+# } 
+# row.names(hubs)=gnames
+# 
+# contrasting = colorRampPalette(rev(c("chocolate1","#FEE090","grey10", "cyan3","cyan")))(100)
+# contrasting2 = colorRampPalette(rev(c("chocolate1","chocolate1","#FEE090","grey10", "cyan3","cyan")))(100)
+# contrasting3 = colorRampPalette(rev(c("chocolate1","#FEE090","grey10", "cyan3","cyan","cyan")))(100)
+# 
+# # pdf(file="heatmap_top30_pink.pdf", height=6, width=42)
+# # pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F)
+# # dev.off()

@@ -1,8 +1,10 @@
 #### PACKAGES ####
 
 # installing WGCNA:
-# source("http://bioconductor.org/biocLite.R")
-# biocLite(c("AnnotationDbi", "impute", "GO.db", "preprocessCore"))
+# if (!require("BiocManager", quietly = TRUE))
+#   install.packages("BiocManager")
+# BiocManager::install(version = "3.15")
+# BiocManager::install(c("AnnotationDbi", "impute", "GO.db", "preprocessCore"))
 # install.packages("flashClust")
 # install.packages("WGCNA",dependencies=TRUE)
 # repos="http://cran.us.r-project.org"
@@ -31,34 +33,35 @@ str(design)
 
 # assembling table of traits
 # coding genotype as binary (0/1, yes/no)
-BH=as.numeric(design$genotype=="BH")
-BW=as.numeric(design$genotype=="BW")
-CH=as.numeric(design$genotype=="CH")
-CW=as.numeric(design$genotype=="CW")
-PH=as.numeric(design$genotype=="PH")
-PW=as.numeric(design$genotype=="PW")
-RH=as.numeric(design$genotype=="RH")
-RW=as.numeric(design$genotype=="RW")
-WH=as.numeric(design$genotype=="WH")
-WW=as.numeric(design$genotype=="WW")
-YH=as.numeric(design$genotype=="YH")
-YW=as.numeric(design$genotype=="YW")
-BL=as.numeric(design$genotype=="BL")
-BZ=as.numeric(design$genotype=="BZ")
-CZ=as.numeric(design$genotype=="CZ")
-GZ=as.numeric(design$genotype=="GZ")
-LZ=as.numeric(design$genotype=="LZ")
-PZ=as.numeric(design$genotype=="PZ")
-RZ=as.numeric(design$genotype=="RZ")
-YZ=as.numeric(design$genotype=="YZ")
+# BH=as.numeric(design$genotype=="BH")
+# BW=as.numeric(design$genotype=="BW")
+# CH=as.numeric(design$genotype=="CH")
+# CW=as.numeric(design$genotype=="CW")
+# PH=as.numeric(design$genotype=="PH")
+# PW=as.numeric(design$genotype=="PW")
+# RH=as.numeric(design$genotype=="RH")
+# RW=as.numeric(design$genotype=="RW")
+# WH=as.numeric(design$genotype=="WH")
+# WW=as.numeric(design$genotype=="WW")
+# YH=as.numeric(design$genotype=="YH")
+# YW=as.numeric(design$genotype=="YW")
+# BL=as.numeric(design$genotype=="BL")
+# BZ=as.numeric(design$genotype=="BZ")
+# CZ=as.numeric(design$genotype=="CZ")
+# GZ=as.numeric(design$genotype=="GZ")
+# LZ=as.numeric(design$genotype=="LZ")
+# PZ=as.numeric(design$genotype=="PZ")
+# RZ=as.numeric(design$genotype=="RZ")
+# YZ=as.numeric(design$genotype=="YZ")
 
-sctld=as.numeric(design$treatment!="control")
+# sctld=as.numeric(design$treatment!="control")
 
 healthy=as.numeric(design$fate=="healthy")
 nai=as.numeric(design$fate=="nai")
 diseased=as.numeric(design$fate=="diseased")
 
-traits <- cbind(BH, BW, CH, CW, PH, PW, RH, RW, WH, WW, YH, YW, BL, BZ, CZ, GZ, LZ, PZ, RZ, YZ, sctld, healthy, nai, diseased, design[c(7)])
+# traits <- cbind(BH, BW, CH, CW, PH, PW, RH, RW, WH, WW, YH, YW, BL, BZ, CZ, GZ, LZ, PZ, RZ, YZ, sctld, healthy, nai, diseased, design[c(7)])
+traits <- cbind(healthy, nai, diseased, design[c(7)])
 traits
 
 
@@ -345,7 +348,9 @@ table(moduleColors)
 
 # run for each of these statements individually
 # whichTrait="healthy"
-whichTrait="nai"
+# whichTrait="nai"
+# whichTrait="diseased"
+whichTrait="transmission"
 
 nGenes = ncol(datt);
 nSamples = nrow(datt);
@@ -364,12 +369,16 @@ names(GSPvalue) = paste("p.GS.", names(selTrait), sep="");
 
 # selecting specific modules to plot (change depending on which trait you're looking at)
 # moduleCols=c("pink") # for healthy
-moduleCols=c("pink") # for nai
+# moduleCols=c("pink") # for nai
+# moduleCols=c("pink") # for diseased
+moduleCols=c("blue","red","turquoise") # for transmission
 
 quartz()
 # set par to be big enough for all significant module correlations, then run the next whichTrait and moduleCols statements above and repeat from the 'for' loop
 # par(mfrow=c(1,1)) # for healthy
-par(mfrow=c(1,1)) # for nai
+# par(mfrow=c(1,1)) # for nai
+# par(mfrow=c(1,1)) # for diseased
+par(mfrow=c(1,3)) # for transmission
 
 counter=0
 # shows correlations for all modules
@@ -403,7 +412,10 @@ load(file = "networkdata_signed.RData")
 load(file = "wgcnaData.RData");
 
 # run for each of these statements individually
-which.module="pink"
+# which.module="blue"
+# which.module="red"
+# which.module="pink"
+which.module="turquoise"
 
 datME=MEs
 datExpr=datt
@@ -436,7 +448,10 @@ allkME =as.data.frame(signedKME(datt, MEs))
 names(allkME)=gsub("kME","",names(allkME))
 
 # run for each of these statements individually
-whichModule="pink"
+# whichModule="blue"
+# whichModule="red"
+# whichModule="pink"
+whichModule="turquoise"
 
 table(moduleColors==whichModule) # how many genes are in it?
 
@@ -454,10 +469,13 @@ load(file = "networkdata_signed.RData")
 load(file = "data4wgcna.RData") 
 load(file = "wgcnaData.RData");
 allkME =as.data.frame(signedKME(datt, MEs))
-gg=read.delim(file="Mcavernosa_Cladocopium_iso2geneName.tab",sep="\t")
+gg=read.delim(file="Cladocopium_iso2geneName.tab",sep="\t")
 library(pheatmap)
 
-whichModule="pink"
+# whichModule="blue"
+# whichModule="red"
+# whichModule="pink"
+whichModule="turquoise"
 
 top=30 # number of named top-kME genes to plot
 
@@ -487,6 +505,46 @@ contrasting = colorRampPalette(rev(c("chocolate1","#FEE090","grey10", "cyan3","c
 contrasting2 = colorRampPalette(rev(c("chocolate1","chocolate1","#FEE090","grey10", "cyan3","cyan")))(100)
 contrasting3 = colorRampPalette(rev(c("chocolate1","#FEE090","grey10", "cyan3","cyan","cyan")))(100)
 
-# pdf(file="heatmap_top30_pink.pdf", height=6, width=42)
-# pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F)
+# pdf(file="heatmap_top30_blue.pdf", height=6, width=13)
+# pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F,cluster_cols=F)
 # dev.off()
+# pdf(file="heatmap_top30_red.pdf", height=6, width=11)
+# pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F,cluster_cols=F)
+# dev.off()
+# pdf(file="heatmap_top30_pink.pdf", height=6, width=13.5)
+# pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F,cluster_cols=F)
+# dev.off()
+pdf(file="heatmap_top30_turquoise.pdf", height=6, width=32)
+pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F,cluster_cols=F)
+dev.off()
+
+
+#### HUB GENES ####
+
+library(WGCNA)
+library(tidyverse)
+load(file = "networkdata_signed.RData")
+load(file = "data4wgcna.RData") 
+load(file = "wgcnaData.RData");
+allkME =as.data.frame(signedKME(datt, MEs))
+
+colorh = labels2colors(moduleColors)
+hubgenes <- chooseTopHubInEachModule(datt, colorh, omitColors = "grey", 
+                                     power = 2, 
+                                     type = "signed")
+hubgenes <-data.frame(hubgenes)
+hubgenes <- tibble::rownames_to_column(hubgenes, "module")
+hubgenes
+
+hubgenes %>%
+  rename("gene" = 
+           hubgenes) %>%
+  left_join(read.table(file = "../../../annotate/symC/Cladocopium_iso2geneName.tab",
+                       sep = "\t",
+                       quote="", fill=FALSE) %>%
+              mutate(gene = V1,
+                     annot_mcav = V2) %>%
+              dplyr::select(-V1, -V2), by = "gene") -> hubgenes
+hubgenes
+
+write.csv(hubgenes, file="hubgenes.csv")

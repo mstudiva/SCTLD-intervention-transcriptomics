@@ -1,8 +1,10 @@
 #### PACKAGES ####
 
 # installing WGCNA:
-# source("http://bioconductor.org/biocLite.R")
-# biocLite(c("AnnotationDbi", "impute", "GO.db", "preprocessCore"))
+# if (!require("BiocManager", quietly = TRUE))
+#   install.packages("BiocManager")
+# BiocManager::install(version = "3.15")
+# BiocManager::install(c("AnnotationDbi", "impute", "GO.db", "preprocessCore"))
 # install.packages("flashClust")
 # install.packages("WGCNA",dependencies=TRUE)
 # repos="http://cran.us.r-project.org"
@@ -14,7 +16,6 @@ library(flashClust)
 library(ape)
 options(stringsAsFactors=FALSE)
 allowWGCNAThreads()
-# ?WGCNA
 
 
 #### DATA IMPORT and TRAITS ####
@@ -31,50 +32,51 @@ str(design)
 
 # assembling table of traits
 # coding genotype as binary (0/1, yes/no)
-g302=as.numeric(design$genotype=="302")
-g308=as.numeric(design$genotype=="308")
-g314=as.numeric(design$genotype=="314")
-g328A=as.numeric(design$genotype=="328A")
-g337=as.numeric(design$genotype=="337")
-g345=as.numeric(design$genotype=="345")
-g367=as.numeric(design$genotype=="367")
-g368=as.numeric(design$genotype=="368")
-g381=as.numeric(design$genotype=="381")
-g384=as.numeric(design$genotype=="384")
-g386=as.numeric(design$genotype=="386")
-g387=as.numeric(design$genotype=="387")
-g388=as.numeric(design$genotype=="388")
-g396=as.numeric(design$genotype=="396")
-g397=as.numeric(design$genotype=="397")
-g398=as.numeric(design$genotype=="398")
-g406=as.numeric(design$genotype=="406")
-g410=as.numeric(design$genotype=="410")
-g415=as.numeric(design$genotype=="415")
-g416=as.numeric(design$genotype=="416")
-g417=as.numeric(design$genotype=="417")
-g418=as.numeric(design$genotype=="418")
-g419=as.numeric(design$genotype=="419")
-g420=as.numeric(design$genotype=="420")
-g426=as.numeric(design$genotype=="426")
-g427=as.numeric(design$genotype=="427")
-g428=as.numeric(design$genotype=="428")
-g430=as.numeric(design$genotype=="430")
-g434=as.numeric(design$genotype=="434")
-g435=as.numeric(design$genotype=="435")
-g447=as.numeric(design$genotype=="447")
-g448=as.numeric(design$genotype=="448")
-g449=as.numeric(design$genotype=="449")
-g450=as.numeric(design$genotype=="450")
+# g302=as.numeric(design$genotype=="302")
+# g308=as.numeric(design$genotype=="308")
+# g314=as.numeric(design$genotype=="314")
+# g328A=as.numeric(design$genotype=="328A")
+# g337=as.numeric(design$genotype=="337")
+# g345=as.numeric(design$genotype=="345")
+# g367=as.numeric(design$genotype=="367")
+# g368=as.numeric(design$genotype=="368")
+# g381=as.numeric(design$genotype=="381")
+# g384=as.numeric(design$genotype=="384")
+# g386=as.numeric(design$genotype=="386")
+# g387=as.numeric(design$genotype=="387")
+# g388=as.numeric(design$genotype=="388")
+# g396=as.numeric(design$genotype=="396")
+# g397=as.numeric(design$genotype=="397")
+# g398=as.numeric(design$genotype=="398")
+# g406=as.numeric(design$genotype=="406")
+# g410=as.numeric(design$genotype=="410")
+# g415=as.numeric(design$genotype=="415")
+# g416=as.numeric(design$genotype=="416")
+# g417=as.numeric(design$genotype=="417")
+# g418=as.numeric(design$genotype=="418")
+# g419=as.numeric(design$genotype=="419")
+# g420=as.numeric(design$genotype=="420")
+# g426=as.numeric(design$genotype=="426")
+# g427=as.numeric(design$genotype=="427")
+# g428=as.numeric(design$genotype=="428")
+# g430=as.numeric(design$genotype=="430")
+# g434=as.numeric(design$genotype=="434")
+# g435=as.numeric(design$genotype=="435")
+# g447=as.numeric(design$genotype=="447")
+# g448=as.numeric(design$genotype=="448")
+# g449=as.numeric(design$genotype=="449")
+# g450=as.numeric(design$genotype=="450")
 
-t0=as.numeric(design$time=="0")
-t1=as.numeric(design$time=="1")
+# t0=as.numeric(design$time=="0")
+# t1=as.numeric(design$time=="1")
 
 healthy0=as.numeric(design$treatment.time=="control.0")
 healthy1=as.numeric(design$treatment.time=="control.1")
 diseased=as.numeric(design$treatment.time=="sctld.0")
 treated=as.numeric(design$treatment.time=="sctld.1")
 
-traits <- data.frame(cbind(g302, g308, g314, g328A, g337, g345, g367, g368, g381, g384, g386, g387, g388, g396, g397, g398, g406, g410, g415, g416, g417, g418, g419, g420, g426, g427, g428, g430, g434, g435, g447, g448, g449, g450, t0, t1, healthy0, healthy1, diseased, treated))
+# traits <- data.frame(cbind(g302, g308, g314, g328A, g337, g345, g367, g368, g381, g384, g386, g387, g388, g396, g397, g398, g406, g410, g415, g416, g417, g418, g419, g420, g426, g427, g428, g430, g434, g435, g447, g448, g449, g450, t0, t1, healthy0, healthy1, diseased, treated))
+traits <- data.frame(cbind(healthy0, healthy1, diseased, treated))
 traits
 
 
@@ -180,7 +182,7 @@ dev.off()
 # pick the power that corresponds with a SFT.R.sq value above 0.90
 
 # run from the line below to the save command
-s.th=14 # re-specify according to previous section
+s.th=17 # re-specify according to previous section
 adjacency = adjacency(datt, power = s.th,type="signed");
 TOM = TOMsimilarity(adjacency,TOMType="signed");
 dissTOM = 1-TOM
@@ -220,7 +222,7 @@ lnames=load('wgcnaData.RData')
 
 quartz()
 
-MEDissThres = 0 # in the first pass, set this to 0 - no merging (we want to see the module-traits heatmap first, then decide which modules are telling us the same story and better be merged)
+MEDissThres = 0.4 # in the first pass, set this to 0 - no merging (we want to see the module-traits heatmap first, then decide which modules are telling us the same story and better be merged)
 sizeGrWindow(7, 6)
 plot(METree, main = "Clustering of module eigengenes",
 xlab = "", sub = "")
@@ -337,12 +339,12 @@ labeledHeatmap(Matrix = moduleTraitCor,
                main = paste("M. cavernosa Module-Trait correlations"))
 
 # module size barplot
-labelShift=150 # increase to move module size labels to the right
+labelShift=750 # increase to move module size labels to the right
 quartz()
 par(mar = c(6, 8.5, 3, 3));
 mct=table(moduleColors)
 mct[modLabels]
-x=barplot(mct[rev(modLabels)],horiz=T,las=1,xlim=c(0,3000),col=rev(modLabels))
+x=barplot(mct[rev(modLabels)],horiz=T,las=1,xlim=c(0,16000),col=rev(modLabels))
 text(mct[rev(modLabels)]+labelShift,y=x,mct[rev(modLabels)],cex=0.9) 
 
 # If it was first pass with no module merging, this is where you examine your heatmap and dendrogram of module eigengenes to see where you would like to set cut height (MEDissThres parameter) in the previous section to merge modules that are telling the same story for your trait data 
@@ -381,16 +383,16 @@ names(geneTraitSignificance) = paste("GS.", names(selTrait), sep="");
 names(GSPvalue) = paste("p.GS.", names(selTrait), sep="");
 
 # selecting specific modules to plot (change depending on which trait you're looking at)
-# moduleCols=c("black", "lightyellow","red","lightcyan") # for healthy0
-# moduleCols=c("lightyellow") # for healthy1
-# moduleCols=c("black", "green","lightgreen","cyan") # for diseased
-moduleCols=c("green","pink") # for treated
+# moduleCols=c("greenyellow","darkred", "purple","salmon") # for healthy0
+# moduleCols=c("darkred","salmon") # for healthy1
+# moduleCols=c("greenyellow", "grey60","purple","darkgreen","pink") # for diseased
+moduleCols=c("pink","grey") # for treated
 
 quartz()
 # set par to be big enough for all significant module correlations, then run the next whichTrait and moduleCols statements above and repeat from the 'for' loop
 # par(mfrow=c(1,4)) # for healthy0
-# par(mfrow=c(1,1)) # for healthy1
-# par(mfrow=c(1,4)) # for diseased
+# par(mfrow=c(1,2)) # for healthy1
+# par(mfrow=c(1,5)) # for diseased
 par(mfrow=c(1,2)) # for treated
 
 counter=0
@@ -425,13 +427,14 @@ load(file = "networkdata_signed.RData")
 load(file = "wgcnaData.RData");
 
 # run for each of these statements individually
-# which.module="black"
-# which.module="green"
-# which.module="lightyellow"
-# which.module="red"
-# which.module="lightgreen"
-# which.module="lightcyan"
-which.module="pink"
+# which.module="greenyellow"
+# which.module="darkred"
+# which.module="grey60"
+# which.module="purple"
+# which.module="salmon"
+# which.module="darkgreen"
+# which.module="pink"
+which.module="grey"
 
 datME=MEs
 datExpr=datt
@@ -448,7 +451,7 @@ ylab="eigengene expression",xlab="sample")
 length(datExpr[1,moduleColors==which.module ]) # number of genes in chosen module
 
 # If individual samples appear to be driving expression of significant modules, they are likely outliers
-# count the array numbers and go back to the outlier detection section to remove outliers and rerun all code
+# dropping grey module
 
 
 #### GO/KOG EXPORT ####
@@ -465,12 +468,13 @@ names(allkME)=gsub("kME","",names(allkME))
 
 # run for each of these statements individually
 # not exporting red since it was driven by one outlier sample
-# whichModule="black"
-# whichModule="green"
-# whichModule="lightyellow"
-# whichModule="lightgreen"
-# whichModule="lightcyan"
-whichModule="pink"
+# whichModule="greenyellow"
+whichModule="darkred"
+# whichModule="grey60"
+# whichModule="purple"
+# whichModule="salmon"
+# whichModule="darkgreen"
+# whichModule="pink"
 
 table(moduleColors==whichModule) # how many genes are in it?
 
@@ -488,15 +492,16 @@ load(file = "networkdata_signed.RData")
 load(file = "data4wgcna.RData") 
 load(file = "wgcnaData.RData");
 allkME =as.data.frame(signedKME(datt, MEs))
-gg=read.delim(file="Mcavernosa_Cladocopium_iso2geneName.tab",sep="\t")
+gg=read.delim(file="Mcavernosa2015_iso2geneName.tab",sep="\t")
 library(pheatmap)
 
-# whichModule="black"
-# whichModule="green"
-# whichModule="lightyellow"
-# whichModule="lightgreen"
-whichModule="lightcyan"
-whichModule="pink"
+whichModule="greenyellow"
+# whichModule="darkred"
+# whichModule="grey60"
+# whichModule="purple"
+# whichModule="salmon"
+# whichModule="darkgreen"
+# whichModule="pink"
 
 top=30 # number of named top-kME genes to plot
 
@@ -526,22 +531,56 @@ contrasting = colorRampPalette(rev(c("chocolate1","#FEE090","grey10", "cyan3","c
 contrasting2 = colorRampPalette(rev(c("chocolate1","chocolate1","#FEE090","grey10", "cyan3","cyan")))(100)
 contrasting3 = colorRampPalette(rev(c("chocolate1","#FEE090","grey10", "cyan3","cyan","cyan")))(100)
 
-# pdf(file="heatmap_top30_black.pdf", height=6, width=14)
-# pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F)
-# dev.off()
-# pdf(file="heatmap_top30_green.pdf", height=6, width=14)
-# pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F)
-# dev.off()
-# pdf(file="heatmap_top30_lightyellow.pdf", height=6, width=30)
-# pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F)
-# dev.off()
-# pdf(file="heatmap_top30_lightgreen.pdf", height=6, width=44)
-# pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F)
-# dev.off()
-# pdf(file="heatmap_top30_lightcyan.pdf", height=6, width=14)
-# pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F)
-# dev.off()
-pdf(file="heatmap_top30_pink.pdf", height=6, width=14)
-pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F)
+pdf(file="heatmap_top30_greenyellow.pdf", height=6, width=18)
+pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F,cluster_cols=F)
 dev.off()
+# pdf(file="heatmap_top30_darkred.pdf", height=6, width=16)
+# pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F,cluster_cols=F)
+# dev.off()
+# pdf(file="heatmap_top30_grey60.pdf", height=6, width=22)
+# pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F,cluster_cols=F)
+# dev.off()
+# pdf(file="heatmap_top30_purple.pdf", height=6, width=17)
+# pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F,cluster_cols=F)
+# dev.off()
+# pdf(file="heatmap_top30_salmon.pdf", height=6, width=18)
+# pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F,cluster_cols=F)
+# dev.off()
+# pdf(file="heatmap_top30_darkgreen.pdf", height=6, width=15)
+# pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F,cluster_cols=F)
+# dev.off()
+# pdf(file="heatmap_top30_pink.pdf", height=6, width=14)
+# pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F,cluster_cols=F)
+# dev.off()
+
+
+#### HUB GENES ####
+
+library(WGCNA)
+library(tidyverse)
+load(file = "networkdata_signed.RData")
+load(file = "data4wgcna.RData") 
+load(file = "wgcnaData.RData");
+allkME =as.data.frame(signedKME(datt, MEs))
+
+colorh = labels2colors(moduleColors)
+hubgenes <- chooseTopHubInEachModule(datt, colorh, omitColors = "grey", 
+                                     power = 2, 
+                                     type = "signed")
+hubgenes <-data.frame(hubgenes)
+hubgenes <- tibble::rownames_to_column(hubgenes, "module")
+hubgenes
+
+hubgenes %>%
+  rename("gene" = 
+           hubgenes) %>%
+  left_join(read.table(file = "../../../annotate/mcav2015/Mcavernosa2015_iso2geneName.tab",
+                       sep = "\t",
+                       quote="", fill=FALSE) %>%
+              mutate(gene = V1,
+                     annot_mcav = V2) %>%
+              dplyr::select(-V1, -V2), by = "gene") -> hubgenes
+hubgenes
+
+write.csv(hubgenes, file="hubgenes.csv")
 

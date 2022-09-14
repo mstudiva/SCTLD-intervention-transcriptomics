@@ -487,3 +487,33 @@ uniHeatmap(vsd=vsd_comb,gene.names=gene_names,
            pdf=F,
 )
 dev.off()
+
+# p < 1e-7
+pdf(file="orthofinder_heatmap_p1e7.pdf", height=10, width=22)
+uniHeatmap(vsd=vsd_comb,gene.names=gene_names,
+           metric=-(abs(diseased_healthy$lpv_mcav)), # metric of gene significance
+           # metric2=-(abs(diseased_healthy$lpv_ofav)),
+           cutoff=-7, 
+           sort=c(1:ncol(vsd_comb)), # overrides sorting of columns according to hierarchical clustering
+           # sort=order(design_comb$full_id), 
+           cex=0.8,
+           pdf=F,
+)
+dev.off()
+
+
+#### COMMON GOs ####
+
+trans_species <- read.csv(file = "trans_species.csv")
+trans_species$direction = as.factor(trans_species$direction)
+trans_species$cat = factor(trans_species$cat, levels = c("MF","BP","CC"))
+
+species_plot <- ggplot(trans_species, aes(x = species, y = name, color = direction)) +
+  geom_point(aes(size = genes)) + 
+  scale_color_manual(values = c("0"="blue","1"="red")) +
+  facet_grid(rows = vars(cat), scales = "free", space="free_y") + 
+  theme_classic()+
+  theme(panel.border = element_rect(colour = "black", fill=NA, size=1))
+species_plot
+
+ggsave("transmission GO species.pdf", plot= species_plot, width=6.5, height=6.5, units="in", dpi=300)

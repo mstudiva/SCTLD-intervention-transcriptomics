@@ -107,14 +107,14 @@ ggsave("sctld omics transmission.pdf", plot= transmission_days, width=3, height=
 
 trans_rate <- read.csv("sctld omics rate.csv", head = T)
 trans_rate
-trans_rate$treatment=factor(trans_rate$treatment, levels=unique(trans_rate$treatment)) 
-omics_transrate <- ggplot(trans_rate, aes(fill=forcats::fct_rev(condition), y=rate, x=treatment)) + 
+# trans_rate$treatment=factor(trans_rate$treatment, levels=unique(trans_rate$treatment)) 
+omics_transrate <- ggplot(trans_rate, aes(fill=forcats::fct_rev(condition), y=rate, x=species)) + 
   # scale_fill_manual(values=c("green", "red")) +
   geom_col(width = 0.5) +
   theme_bw() 
 omics_transrate
 
-ggsave("sctld omics rate.pdf", plot= omics_transrate, width=4.5, height=1.5, units="in", dpi=300)
+ggsave("sctld omics rate.pdf", plot= omics_transrate, width=4.25, height=2, units="in", dpi=300)
 
 
 #### trans survivorship ####

@@ -1,0 +1,43 @@
+species,cat,name,pval,direction,genes,total,percent
+Mcav,MF,RNA binding,9.25E-05,1,139,589,0.235993209
+Mcav,MF,structural constituent of ribosome,0.001028466,1,45,144,0.3125
+Mcav,BP,cytoplasmic translation,3.51E-09,1,44,110,0.4
+Mcav,BP,DNA metabolic process,1.41E-09,0,130,553,0.235081374
+Mcav,BP,establishment of protein localization to membrane,1.82E-07,1,52,154,0.337662338
+Mcav,BP,intracellular protein transport,1.01E-15,1,170,589,0.288624788
+Mcav,BP,meiosis I cell cycle process,4.24E-05,0,30,136,0.220588235
+Mcav,BP,"nuclear-transcribed mRNA catabolic process, nonsense-mediated decay",4.01E-05,1,28,87,0.32183908
+Mcav,BP,peptide biosynthetic process,5.60E-07,1,95,291,0.326460481
+Mcav,BP,peptide metabolic process,0.001089722,1,145,430,0.337209302
+Mcav,BP,protein targeting,3.94E-07,1,75,234,0.320512821
+Mcav,BP,protein targeting to membrane,1.59E-08,1,48,119,0.403361345
+Mcav,BP,translational initiation,1.60E-08,1,42,102,0.411764706
+Mcav,CC,cytosolic large ribosomal subunit,3.65E-06,1,30,68,0.441176471
+Mcav,CC,cytosolic part,6.45E-06,1,63,181,0.348066298
+Mcav,CC,cytosolic ribosome,1.60E-07,1,46,124,0.370967742
+Mcav,CC,cytosolic small ribosomal subunit,0.00983767,1,15,45,0.333333333
+Mcav,CC,large ribosomal subunit,0.001392861,1,32,95,0.336842105
+Mcav,CC,polysome,0.008999157,1,21,62,0.338709677
+Mcav,CC,ribonucleoprotein complex,2.75E-06,1,145,627,0.231259968
+Mcav,CC,ribosome,0.00022507,1,54,184,0.293478261
+Ofav,MF,RNA binding,0.03328227,1,64,534,0.119850187
+Ofav,MF,structural constituent of ribosome,1.47E-14,1,20,122,0.163934426
+Ofav,BP,cytoplasmic translation,1.05E-15,1,19,96,0.197916667
+Ofav,BP,DNA metabolic process,0.034768209,0,51,486,0.104938272
+Ofav,BP,establishment of protein localization to membrane,0.00215287,1,18,139,0.129496403
+Ofav,BP,intracellular protein transport,0.000525022,1,70,570,0.122807018
+Ofav,BP,meiosis I cell cycle process,0.031022525,0,17,126,0.134920635
+Ofav,BP,"nuclear-transcribed mRNA catabolic process, nonsense-mediated decay",0.000525022,1,11,76,0.144736842
+Ofav,BP,peptide biosynthetic process,3.11E-06,1,37,267,0.138576779
+Ofav,BP,peptide metabolic process,0.001195798,1,60,405,0.148148148
+Ofav,BP,protein targeting,0.018652693,1,23,218,0.105504587
+Ofav,BP,protein targeting to membrane,7.02E-05,1,11,88,0.125
+Ofav,BP,translational initiation,0.001400831,1,16,100,0.16
+Ofav,CC,cytosolic large ribosomal subunit,8.00E-13,1,13,60,0.216666667
+Ofav,CC,cytosolic part,9.78E-07,1,30,175,0.171428571
+Ofav,CC,cytosolic ribosome,2.71E-15,1,20,100,0.2
+Ofav,CC,cytosolic small ribosomal subunit,8.96E-06,1,6,33,0.181818182
+Ofav,CC,large ribosomal subunit,1.25E-08,1,15,87,0.172413793
+Ofav,CC,polysome,0.034926573,1,13,63,0.206349206
+Ofav,CC,ribonucleoprotein complex,0.008651492,1,69,580,0.118965517
+Ofav,CC,ribosome,1.91E-10,1,26,161,0.161490683
