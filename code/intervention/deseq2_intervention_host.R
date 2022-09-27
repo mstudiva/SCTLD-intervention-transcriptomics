@@ -3,7 +3,7 @@
 # run these once, then comment out
 # if (!requireNamespace("BiocManager", quietly = TRUE))
 #   install.packages("BiocManager")
-# BiocManager::install(version = "3.10")
+# BiocManager::install(version = "3.15")
 # BiocManager::install("DESeq2",dependencies=T)
 # BiocManager::install("arrayQualityMetrics",dependencies=T)  # requires Xquartz, xquartz.org
 # BiocManager::install("BiocParallel")
@@ -80,7 +80,7 @@ arrayQualityMetrics(e,intgroup=c("treatment.time"),force=T)
 # use the array number for removal in the following section
 
 # if there were outliers:
-outs=c(3,4,23,26,36,40,55,63)
+outs=c(1,2,9,12,21,25,33,37)
 countData=countData[,-outs]
 Vsd=Vsd[,-outs]
 counts4wgcna=counts4wgcna[,-outs]
@@ -163,7 +163,7 @@ plot(tre,cex=0.8)
 dev.off()
 
 # formal analysis of variance in distance matricies: 
-ad=adonis(t(vsd)~time*treatment,data=conditions,method="manhattan",permutations=1e6)
+ad=adonis2(t(vsd)~time*treatment,data=conditions,method="manhattan",permutations=1e6)
 ad
 
 # creating pie chart to represent ANOVA results
@@ -388,3 +388,28 @@ diseased0_healthy1.p$lpv[source$stat<0]=diseased0_healthy1.p$lpv[source$stat<0]*
 head(diseased0_healthy1.p)
 write.csv(diseased0_healthy1.p,file="diseased0_healthy1_lpv.csv",row.names=F,quote=F)
 save(diseased0_healthy1.p,file="diseased0_healthy1_lpv.RData")
+
+
+#### CHERRY PICKING ####
+
+diseased0_healthy0.p %>%
+  filter(abs(lpv) >= 1) %>%
+  left_join(read.table(file = "../../../annotate/mcav2015/Mcavernosa2015_iso2geneName.tab",
+                       sep = "\t",
+                       quote="", fill=FALSE) %>%
+              mutate(gene = V1,
+                     annot = V2) %>%
+              dplyr::select(-V1, -V2), by = c("gene" = "gene")) %>%
+  filter(str_detect(annot, 'NF-kappaB|peroxidas|TGF-beta|protein tyrosine kinase|fibrinogen|WD repeat-containing protein|apoptosis|extracellular matrix')) -> cherrypicking
+write.csv(cherrypicking, file = "inter_d0h0_cherrypicking.csv")
+
+treated1_diseased0.p %>%
+  filter(abs(lpv) >= 1) %>%
+  left_join(read.table(file = "../../../annotate/mcav2015/Mcavernosa2015_iso2geneName.tab",
+                       sep = "\t",
+                       quote="", fill=FALSE) %>%
+              mutate(gene = V1,
+                     annot = V2) %>%
+              dplyr::select(-V1, -V2), by = c("gene" = "gene")) %>%
+  filter(str_detect(annot, 'NF-kappaB|peroxidas|TGF-beta|protein tyrosine kinase|fibrinogen|WD repeat-containing protein|apoptosis|extracellular matrix')) -> cherrypicking
+write.csv(cherrypicking, file = "inter_t1d0_cherrypicking.csv")

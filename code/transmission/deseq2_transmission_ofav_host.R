@@ -121,7 +121,7 @@ dev.off()
 
 # Principal coordinates analysis
 library(vegan)
-library(rgl)
+# library(rgl)
 library(ape)
 
 conditions=design
@@ -336,3 +336,16 @@ diseased_healthy.p$lpv[source$stat<0]=diseased_healthy.p$lpv[source$stat<0]*-1
 head(diseased_healthy.p)
 write.csv(diseased_healthy.p,file="diseased_healthy_lpv.csv",row.names=F,quote=F)
 save(diseased_healthy.p,file="diseased_healthy_lpv.RData")
+
+#### CHERRY PICKING ####
+
+diseased_healthy.p %>%
+  filter(abs(lpv) >= 1) %>%
+  left_join(read.table(file = "../../../annotate/ofav/Ofaveolata_iso2geneName.tab",
+                       sep = "\t",
+                       quote="", fill=FALSE) %>%
+              mutate(gene = V1,
+                     annot = V2) %>%
+              dplyr::select(-V1, -V2), by = c("gene" = "gene")) %>%
+  filter(str_detect(annot, 'NF-kappaB|peroxidas|TGF-beta|protein tyrosine kinase|fibrinogen|WD repeat-containing protein|apoptosis|extracellular matrix')) -> cherrypicking
+write.csv(cherrypicking, file = "trans_ofav_cherrypicking.csv")

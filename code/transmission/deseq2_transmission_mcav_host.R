@@ -3,7 +3,7 @@
 # run these once, then comment out
 # if (!requireNamespace("BiocManager", quietly = TRUE))
 #   install.packages("BiocManager")
-# BiocManager::install(version = "3.10")
+# BiocManager::install(version = "3.15")
 # BiocManager::install("DESeq2",dependencies=T)
 # BiocManager::install("arrayQualityMetrics",dependencies=T)  # requires Xquartz, xquartz.org
 # BiocManager::install("BiocParallel")
@@ -373,3 +373,16 @@ diseased_nai.p$lpv[source$stat<0]=diseased_nai.p$lpv[source$stat<0]*-1
 head(diseased_nai.p)
 write.csv(diseased_nai.p,file="diseased_nai_lpv.csv",row.names=F,quote=F)
 save(diseased_nai.p,file="diseased_nai_lpv.RData")
+
+#### CHERRY PICKING ####
+
+diseased_healthy.p %>%
+  filter(abs(lpv) >= 1) %>%
+  left_join(read.table(file = "../../../annotate/mcav2015/Mcavernosa2015_iso2geneName.tab",
+                       sep = "\t",
+                       quote="", fill=FALSE) %>%
+              mutate(gene = V1,
+                     annot = V2) %>%
+              dplyr::select(-V1, -V2), by = c("gene" = "gene")) %>%
+  filter(str_detect(annot, 'NF-kappaB|peroxidas|TGF-beta|protein tyrosine kinase|fibrinogen|WD repeat-containing protein|apoptosis|extracellular matrix')) -> cherrypicking
+write.csv(cherrypicking, file = "trans_mcav_cherrypicking.csv")
