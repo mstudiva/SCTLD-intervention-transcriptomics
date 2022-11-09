@@ -517,3 +517,64 @@ species_plot <- ggplot(trans_species, aes(x = species, y = name, color = directi
 species_plot
 
 ggsave("transmission GO species.pdf", plot= species_plot, width=6.5, height=6.5, units="in", dpi=300)
+
+
+#### CHERRY PICKING ####
+
+mcav_diseased_healthy_cherry <- read.csv(file = "../DESeq2/mcav2015/trans_mcav_cherrypicking.csv") %>%
+  select(gene, lpv, annot) %>%
+  rename("lpv_mcav_dh" = lpv, "annot_mcav_dh" = annot)
+
+mcav_diseased0_healthy0_cherry <- read.csv(file = "../../intervention/DESeq2/mcav2015/inter_d0h0_cherrypicking.csv") %>%
+  select(gene, lpv, annot) %>%
+  rename("lpv_mcav_d0h0" = lpv, "annot_mcav_d0h0" = annot)
+
+mcav_treated1_diseased0_cherry <- read.csv(file = "../../intervention/DESeq2/mcav2015/inter_t1d0_cherrypicking.csv") %>%
+  select(gene, lpv, annot) %>%
+  rename("lpv_mcav_t1d0" = lpv, "annot_mcav_t1d0" = annot)
+
+ofav_diseased_healthy_cherry <- read.csv(file = "../DESeq2/ofav/trans_ofav_cherrypicking.csv") %>%
+  select(gene, lpv, annot) %>%
+  rename("lpv_ofav_dh" = lpv, "annot_ofav_dh" = annot)
+
+
+orthologs %>%
+  rename("Protein_ofav" = 
+           Ofaveolata_out_PRO, "Protein_mcav" = 	
+           Mcavernosa2015_out_PRO) %>%
+  separate_rows(., Protein_ofav, sep = ",") %>%
+  separate_rows(., Protein_mcav, sep = ",") %>%
+  unique() %>%
+  right_join(mcav_diseased_healthy_cherry, by = c("Protein_mcav" = "gene")) %>%
+  write.csv(file="mcav_diseased_healthy_cherry.csv")
+
+orthologs %>%
+  rename("Protein_ofav" = 
+           Ofaveolata_out_PRO, "Protein_mcav" = 	
+           Mcavernosa2015_out_PRO) %>%
+  separate_rows(., Protein_ofav, sep = ",") %>%
+  separate_rows(., Protein_mcav, sep = ",") %>%
+  unique() %>%
+  right_join(mcav_diseased0_healthy0_cherry, by = c("Protein_mcav" = "gene")) %>%
+  write.csv(file="mcav_diseased0_healthy0_cherry.csv")
+
+orthologs %>%
+  rename("Protein_ofav" = 
+           Ofaveolata_out_PRO, "Protein_mcav" = 	
+           Mcavernosa2015_out_PRO) %>%
+  separate_rows(., Protein_ofav, sep = ",") %>%
+  separate_rows(., Protein_mcav, sep = ",") %>%
+  unique() %>%
+  right_join(mcav_treated1_diseased0_cherry, by = c("Protein_mcav" = "gene")) %>%
+  write.csv(file="mcav_treated1_diseased0_cherry.csv")
+
+orthologs %>%
+  rename("Protein_ofav" = 
+           Ofaveolata_out_PRO, "Protein_mcav" = 	
+           Mcavernosa2015_out_PRO) %>%
+  separate_rows(., Protein_ofav, sep = ",") %>%
+  separate_rows(., Protein_mcav, sep = ",") %>%
+  unique() %>%
+  right_join(ofav_diseased_healthy_cherry, by = c("Protein_ofav" = "gene")) %>%
+  write.csv(file="ofav_diseased_healthy_cherry.csv")
+ 

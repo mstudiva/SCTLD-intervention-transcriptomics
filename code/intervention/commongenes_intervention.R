@@ -549,3 +549,29 @@ uniHeatmap(vsd=vsd_comb2,gene.names=gene_names2,
            pdf=F,
 )
 dev.off()
+
+# p < 0.0001
+pdf(file="commongenes_dh_heatmap_p0.0001.pdf", height=5, width=15)
+uniHeatmap(vsd=vsd_comb2,gene.names=gene_names2,
+           metric=-(abs(diseased_healthy$lpv_dh)), # metric of gene significance
+           # metric2=-(abs(diseased_healthy$lpv_ofav)),
+           cutoff=-4, 
+           # sort=c(1:ncol(vsd_comb2)), # overrides sorting of columns according to hierarchical clustering
+           sort=colnames(vsd_comb2),
+           cex=0.8,
+           pdf=F,
+)
+dev.off()
+
+# p < 1e-6
+pdf(file="commongenes_dh_heatmap_p1e6.pdf", height=1.75, width=15)
+uniHeatmap(vsd=vsd_comb2,gene.names=gene_names2,
+           metric=-(abs(diseased_healthy$lpv_dh)), # metric of gene significance
+           # metric2=-(abs(diseased_healthy$lpv_ofav)),
+           cutoff=-6, 
+           # sort=c(1:ncol(vsd_comb2)), # overrides sorting of columns according to hierarchical clustering
+           sort=colnames(vsd_comb2),
+           cex=0.8,
+           pdf=F,
+)
+dev.off()

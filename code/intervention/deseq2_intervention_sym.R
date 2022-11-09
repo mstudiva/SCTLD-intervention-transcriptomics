@@ -80,7 +80,7 @@ arrayQualityMetrics(e,intgroup=c("treatment.time"),force=T)
 # use the array number for removal in the following section
 
 # if there were outliers:
-outs=c(23,24,31,32,43,55,58,59,62,63,67)
+outs=c(9,10,17,18,43,48,50,52,53,62,64)
 countData=countData[,-outs]
 Vsd=Vsd[,-outs]
 counts4wgcna=counts4wgcna[,-outs]
