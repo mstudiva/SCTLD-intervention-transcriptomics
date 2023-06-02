@@ -528,8 +528,7 @@ load(file = "data4wgcna.RData")
 load(file = "wgcnaData.RData");
 allkME =as.data.frame(signedKME(datt, MEs))
 
-colorh = labels2colors(moduleColors)
-hubgenes <- chooseTopHubInEachModule(datt, colorh, omitColors = "grey", 
+hubgenes <- chooseTopHubInEachModule(datt, moduleColors, omitColors = "grey", 
                                      power = 2, 
                                      type = "signed")
 hubgenes <-data.frame(hubgenes)

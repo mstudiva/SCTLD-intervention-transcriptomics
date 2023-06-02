@@ -173,6 +173,96 @@ pie(ad$aov.tab$R2[1:4],labels=row.names(ad$aov.tab)[1:4],col=cols,main="time vs 
 dev.off()
 
 
+#### DAPC ####
+
+library(adegenet)
+library(parallel)
+# detectCores()
+library(dplyr)
+library(tidyr)
+library(stringr)
+load("vsd.RData")
+
+conditions=design
+conditions$treatment.time <- factor(conditions$treatment.time, levels = c("sctld.0","sctld.1","control.0","control.1"))
+
+# runs simulations on randomly-chosen datasets of 90% of the total dataset to test the number of PCs to retain
+set.seed(999)
+# by depth, excluding transplants
+xvalDapc(t(vsd[,conditions$treatment.time!="sctld.1"]),conditions$treatment.time[conditions$treatment.time!="sctld.1"], n.rep=100, parallel="multicore", ncpus= 12)
+# This tells us 20 PCs is the most successful in terms of correct assignment, but we need to test again with a smaller range of possible PCs and more reps
+xvalDapc(t(vsd[,conditions$treatment.time!="sctld.1"]),conditions$treatment.time[conditions$treatment.time!="sctld.1"], n.rep=1000, n.pca=10:30, parallel="multicore", ncpus= 12)
+# 19 PCs 
+
+# now running the dapc without transplants
+dp=dapc(t(vsd[,conditions$treatment.time!="sctld.1"]),conditions$treatment.time[conditions$treatment.time!="sctld.1"],n.pca=19, n.da=1)
+
+# can we predict depth treatment for the transplants?
+pred=predict.dapc(dp,newdata=(t(vsd[,conditions$treatment.time=="sctld.1"])))
+pred$posterior
+# look at the posterior section for assignments by probability
+write.csv(pred$posterior, file = "dapc_intervention_sym.csv")
+
+# creating a new dapc object to add in transplants for plotting
+amox=dp
+amox$ind.coord=pred$ind.scores
+amox$posterior=pred$posterior
+amox$assign=pred$assign
+amox$grp<-as.factor(c("sctld.1","sctld.1", "sctld.1", "sctld.1", "sctld.1", "sctld.1", "sctld.1", "sctld.1", "sctld.1", "sctld.1", "sctld.1", "sctld.1", "sctld.1"))
+
+# now exporting side by side figures of controls vs transplants
+# use Adobe Illustrator to overlay transplants curve onto controls
+pdf(file="DAPC_intervention_sym.pdf", width=12, height=6)
+par(mfrow=c(1,2))
+scatter(dp, bg="white",scree.da=FALSE,legend=TRUE,solid=0.6, col= c("red","orange","greenyellow","green"))
+scatter(amox, bg="white",scree.da=FALSE,legend=FALSE,solid=0.6, col= "orange")
+dev.off()
+
+# rearranging for significance testing below
+dpc=data.frame(rbind(dp$ind.coord,pred$ind.scores))
+dpc$sampleid <- rownames(dpc)
+
+# adding factor column
+conditions %>%
+  unite('sampleid', id, treatment.time, genotype, sep=".", remove = FALSE) %>%
+  mutate(sampleid = str_replace(sampleid,'-','.'))-> conditions
+
+conditions %>%
+  select(sampleid, treatment.time) -> lookup
+
+dpc <- left_join(dpc, lookup)
+
+# testing significance of DFA differences with MCMCglmm
+# install.packages("MCMCglmm")
+library(MCMCglmm)
+
+# sets prior distribution and creates a glm
+prior = list(R = list(V = 1, nu = 0.002), G = list(G1 = list(V=1, nu=0.002,alpha.mu=0, alpha.V=1000)))
+glm <-MCMCglmm(LD1~treatment.time,random=~sampleid, family="gaussian", data=dpc,prior=prior,nitt=75000,thin=25,burnin=5000)
+summary(glm)
+# post.mean l-95% CI u-95% CI eff.samp  pMCMC    
+# (Intercept)               -1.3330  -1.8093  -0.8339     2800 <4e-04 ***
+#   treatment.timesctld.1      1.5313   0.8592   2.2760     2800 <4e-04 ***
+#   treatment.timecontrol.0    0.8024   0.1058   1.4911     2800 0.0236 *  
+#   treatment.timecontrol.1    3.3264   2.6380   4.0127     2800 <4e-04 ***
+# check to make sure you don't have autocorrelation with the reps (shown as "walks" in model traces)
+plot(glm)
+
+# calculating difference in magnitudes of t1 treated state and t1 healthy state using sampled sets of parameters
+delta=abs(glm$Sol[,"treatment.timesctld.1"])-abs(glm$Sol[,"treatment.timecontrol.1"])
+# 95% credible interval
+HPDinterval(delta)
+# lower     upper
+# var1 -2.498158 -1.084119
+
+# MCMC p-value
+if (is.na(table(delta<0)[2])) {
+  cat("p <",signif(1/length(delta),1))
+} else { cat("p =",signif(table(delta<0)[2]/length(delta),2)) }
+# p < 4e-04
+# significant p value indicates treated corals are significantly different from healthy controls at t1
+
+
 #### DESEQ ####
 
 # with multi-factor, multi-level design - using LRT

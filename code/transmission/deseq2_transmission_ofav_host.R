@@ -337,6 +337,7 @@ head(diseased_healthy.p)
 write.csv(diseased_healthy.p,file="diseased_healthy_lpv.csv",row.names=F,quote=F)
 save(diseased_healthy.p,file="diseased_healthy_lpv.RData")
 
+
 #### CHERRY PICKING ####
 
 diseased_healthy.p %>%
@@ -349,3 +350,67 @@ diseased_healthy.p %>%
               dplyr::select(-V1, -V2), by = c("gene" = "gene")) %>%
   filter(str_detect(annot, 'NF-kappaB|peroxidas|TGF-beta|protein tyrosine kinase|fibrinogen|WD repeat-containing protein|apoptosis|extracellular matrix')) -> cherrypicking
 write.csv(cherrypicking, file = "trans_ofav_cherrypicking.csv")
+
+
+#### GENE BOXPLOTS ####
+
+library(DESeq2)
+library(ggpubr)
+load("realModels.RData")
+
+Ofaveolata224187 <- plotCounts(dds, gene="Ofaveolata224187", intgroup="treatment", returnData=TRUE)
+write.csv(Ofaveolata224187, file = "Ofaveolata224187.csv")
+
+Ofaveolata263192 <- plotCounts(dds, gene="Ofaveolata263192", intgroup="treatment", returnData=TRUE)
+write.csv(Ofaveolata263192, file = "Ofaveolata263192.csv")
+
+Ofaveolata266584 <- plotCounts(dds, gene="Ofaveolata266584", intgroup="treatment", returnData=TRUE)
+write.csv(Ofaveolata266584, file = "Ofaveolata266584.csv")
+
+Ofaveolata264011 <- plotCounts(dds, gene="Ofaveolata264011", intgroup="treatment", returnData=TRUE)
+write.csv(Ofaveolata264011, file = "Ofaveolata264011.csv")
+
+Ofaveolata261513 <- plotCounts(dds, gene="Ofaveolata261513", intgroup="treatment", returnData=TRUE)
+write.csv(Ofaveolata261513, file = "Ofaveolata261513.csv")
+
+Ofaveolata262409 <- plotCounts(dds, gene="Ofaveolata262409", intgroup="treatment", returnData=TRUE)
+write.csv(Ofaveolata262409, file = "Ofaveolata262409.csv")
+
+Ofaveolata253694 <- plotCounts(dds, gene="Ofaveolata253694", intgroup="treatment", returnData=TRUE)
+write.csv(Ofaveolata253694, file = "Ofaveolata253694.csv")
+
+Ofaveolata261831 <- plotCounts(dds, gene="Ofaveolata261831", intgroup="treatment", returnData=TRUE)
+write.csv(Ofaveolata261831, file = "Ofaveolata261831.csv")
+
+Ofaveolata262557 <- plotCounts(dds, gene="Ofaveolata262557", intgroup="treatment", returnData=TRUE)
+write.csv(Ofaveolata262557, file = "Ofaveolata262557.csv")
+
+Ofaveolata251117 <- plotCounts(dds, gene="Ofaveolata251117", intgroup="treatment", returnData=TRUE)
+write.csv(Ofaveolata251117, file = "Ofaveolata251117.csv")
+
+Ofaveolata262519 <- plotCounts(dds, gene="Ofaveolata262519", intgroup="treatment", returnData=TRUE)
+write.csv(Ofaveolata262519, file = "Ofaveolata262519.csv")
+
+Ofaveolata240196 <- plotCounts(dds, gene="Ofaveolata240196", intgroup="treatment", returnData=TRUE)
+write.csv(Ofaveolata240196, file = "Ofaveolata240196.csv")
+
+Ofaveolata248576 <- plotCounts(dds, gene="Ofaveolata248576", intgroup="treatment", returnData=TRUE)
+write.csv(Ofaveolata248576, file = "Ofaveolata248576.csv")
+
+Ofaveolata243769 <- plotCounts(dds, gene="Ofaveolata243769", intgroup="treatment", returnData=TRUE)
+write.csv(Ofaveolata243769, file = "Ofaveolata243769.csv")
+
+Ofaveolata256330 <- plotCounts(dds, gene="Ofaveolata256330", intgroup="treatment", returnData=TRUE)
+write.csv(Ofaveolata256330, file = "Ofaveolata256330.csv")
+
+Ofaveolata254093 <- plotCounts(dds, gene="Ofaveolata254093", intgroup="treatment", returnData=TRUE)
+write.csv(Ofaveolata254093, file = "Ofaveolata254093.csv")
+
+Ofaveolata267705 <- plotCounts(dds, gene="Ofaveolata267705", intgroup="treatment", returnData=TRUE)
+write.csv(Ofaveolata267705, file = "Ofaveolata267705.csv")
+
+Ofaveolata268849 <- plotCounts(dds, gene="Ofaveolata268849", intgroup="treatment", returnData=TRUE)
+write.csv(Ofaveolata268849, file = "Ofaveolata268849.csv")
+
+Ofaveolata265457 <- plotCounts(dds, gene="Ofaveolata265457", intgroup="treatment", returnData=TRUE)
+write.csv(Ofaveolata265457, file = "Ofaveolata265457.csv")

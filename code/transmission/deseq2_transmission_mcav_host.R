@@ -374,6 +374,7 @@ head(diseased_nai.p)
 write.csv(diseased_nai.p,file="diseased_nai_lpv.csv",row.names=F,quote=F)
 save(diseased_nai.p,file="diseased_nai_lpv.RData")
 
+
 #### CHERRY PICKING ####
 
 diseased_healthy.p %>%
@@ -386,3 +387,89 @@ diseased_healthy.p %>%
               dplyr::select(-V1, -V2), by = c("gene" = "gene")) %>%
   filter(str_detect(annot, 'NF-kappaB|peroxidas|TGF-beta|protein tyrosine kinase|fibrinogen|WD repeat-containing protein|apoptosis|extracellular matrix')) -> cherrypicking
 write.csv(cherrypicking, file = "trans_mcav_cherrypicking.csv")
+
+
+#### GENE BOXPLOTS ####
+
+library(DESeq2)
+library(ggpubr)
+load("realModels.RData")
+
+# exporting counts of specific genes from immune-related searches
+Mcavernosa14879 <- plotCounts(dds, gene="Mcavernosa14879", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa14879, file = "Mcavernosa14879.csv")
+
+Mcavernosa98966 <- plotCounts(dds, gene="Mcavernosa98966", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa98966, file = "Mcavernosa98966.csv")
+
+Mcavernosa64646 <- plotCounts(dds, gene="Mcavernosa64646", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa64646, file = "Mcavernosa64646.csv")
+
+Mcavernosa69648 <- plotCounts(dds, gene="Mcavernosa69648", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa69648, file = "Mcavernosa69648.csv")
+
+Mcavernosa9810 <- plotCounts(dds, gene="Mcavernosa9810", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa9810, file = "Mcavernosa9810.csv")
+
+Mcavernosa43816 <- plotCounts(dds, gene="Mcavernosa43816", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa43816, file = "Mcavernosa43816.csv")
+
+Mcavernosa54510 <- plotCounts(dds, gene="Mcavernosa54510", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa54510, file = "Mcavernosa54510.csv")
+
+Mcavernosa47647 <- plotCounts(dds, gene="Mcavernosa47647", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa47647, file = "Mcavernosa47647.csv")
+
+Mcavernosa50735 <- plotCounts(dds, gene="Mcavernosa50735", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa50735, file = "Mcavernosa50735.csv")
+
+Mcavernosa61972 <- plotCounts(dds, gene="Mcavernosa61972", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa61972, file = "Mcavernosa61972.csv")
+
+Mcavernosa14843 <- plotCounts(dds, gene="Mcavernosa14843", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa14843, file = "Mcavernosa14843.csv")
+
+Mcavernosa16729 <- plotCounts(dds, gene="Mcavernosa16729", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa16729, file = "Mcavernosa16729.csv")
+
+Mcavernosa184695 <- plotCounts(dds, gene="Mcavernosa184695", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa184695, file = "Mcavernosa184695.csv")
+
+Mcavernosa49548 <- plotCounts(dds, gene="Mcavernosa49548", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa49548, file = "Mcavernosa49548.csv")
+
+Mcavernosa59808 <- plotCounts(dds, gene="Mcavernosa59808", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa59808, file = "Mcavernosa59808.csv")
+
+Mcavernosa9650 <- plotCounts(dds, gene="Mcavernosa9650", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa9650, file = "Mcavernosa9650.csv")
+
+Mcavernosa102943 <- plotCounts(dds, gene="Mcavernosa102943", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa102943, file = "Mcavernosa102943.csv")
+
+Mcavernosa12949 <- plotCounts(dds, gene="Mcavernosa12949", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa12949, file = "Mcavernosa12949.csv")
+
+Mcavernosa29964 <- plotCounts(dds, gene="Mcavernosa29964", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa29964, file = "Mcavernosa29964.csv")
+
+Mcavernosa20827 <- plotCounts(dds, gene="Mcavernosa20827", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa20827, file = "Mcavernosa20827.csv")
+
+Mcavernosa71973 <- plotCounts(dds, gene="Mcavernosa71973", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa71973, file = "Mcavernosa71973.csv")
+
+Mcavernosa126229 <- plotCounts(dds, gene="Mcavernosa126229", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa126229, file = "Mcavernosa126229.csv")
+
+Mcavernosa27667 <- plotCounts(dds, gene="Mcavernosa27667", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa27667, file = "Mcavernosa27667.csv")
+
+Mcavernosa21718 <- plotCounts(dds, gene="Mcavernosa21718", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa21718, file = "Mcavernosa21718.csv")
+
+Mcavernosa96261 <- plotCounts(dds, gene="Mcavernosa96261", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa96261, file = "Mcavernosa96261.csv")
+
+Mcavernosa366959 <- plotCounts(dds, gene="Mcavernosa366959", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa366959, file = "Mcavernosa366959.csv")

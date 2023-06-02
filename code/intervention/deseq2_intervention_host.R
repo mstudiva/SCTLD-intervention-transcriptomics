@@ -173,6 +173,96 @@ pie(ad$aov.tab$R2[1:4],labels=row.names(ad$aov.tab)[1:4],col=cols,main="time vs 
 dev.off()
 
 
+#### DAPC ####
+
+library(adegenet)
+library(parallel)
+# detectCores()
+library(dplyr)
+library(tidyr)
+library(stringr)
+load("vsd.RData")
+
+conditions=design
+conditions$treatment.time <- factor(conditions$treatment.time, levels = c("sctld.0","sctld.1","control.0","control.1"))
+
+# runs simulations on randomly-chosen datasets of 90% of the total dataset to test the number of PCs to retain
+set.seed(999)
+# by depth, excluding transplants
+xvalDapc(t(vsd[,conditions$treatment.time!="sctld.1"]),conditions$treatment.time[conditions$treatment.time!="sctld.1"], n.rep=100, parallel="multicore", ncpus= 12)
+# This tells us 15 PCs is the most successful in terms of correct assignment, but we need to test again with a smaller range of possible PCs and more reps
+xvalDapc(t(vsd[,conditions$treatment.time!="sctld.1"]),conditions$treatment.time[conditions$treatment.time!="sctld.1"], n.rep=1000, n.pca=10:20, parallel="multicore", ncpus= 12)
+# 15 PCs 
+
+# now running the dapc without transplants
+dp=dapc(t(vsd[,conditions$treatment.time!="sctld.1"]),conditions$treatment.time[conditions$treatment.time!="sctld.1"],n.pca=15, n.da=1)
+
+# can we predict depth treatment for the transplants?
+pred=predict.dapc(dp,newdata=(t(vsd[,conditions$treatment.time=="sctld.1"])))
+pred$posterior
+# look at the posterior section for assignments by probability
+write.csv(pred$posterior, file = "dapc_intervention_host.csv")
+
+# creating a new dapc object to add in transplants for plotting
+amox=dp
+amox$ind.coord=pred$ind.scores
+amox$posterior=pred$posterior
+amox$assign=pred$assign
+amox$grp<-as.factor(c("sctld.1","sctld.1", "sctld.1", "sctld.1", "sctld.1", "sctld.1", "sctld.1", "sctld.1", "sctld.1", "sctld.1", "sctld.1", "sctld.1", "sctld.1", "sctld.1", "sctld.1"))
+
+# now exporting side by side figures of controls vs transplants
+# use Adobe Illustrator to overlay transplants curve onto controls
+pdf(file="DAPC_intervention_host.pdf", width=12, height=6)
+par(mfrow=c(1,2))
+scatter(dp, bg="white",scree.da=FALSE,legend=TRUE,solid=0.6, col= c("red","orange","greenyellow","green"))
+scatter(amox, bg="white",scree.da=FALSE,legend=FALSE,solid=0.6, col= "orange")
+dev.off()
+
+# rearranging for significance testing below
+dpc=data.frame(rbind(dp$ind.coord,pred$ind.scores))
+dpc$sampleid <- rownames(dpc)
+
+# adding factor column
+conditions %>%
+  unite('sampleid', id, treatment.time, genotype, sep=".", remove = FALSE) %>%
+  mutate(sampleid = str_replace(sampleid,'-','.'))-> conditions
+
+conditions %>%
+  select(sampleid, treatment.time) -> lookup
+
+dpc <- left_join(dpc, lookup)
+
+# testing significance of DFA differences with MCMCglmm
+# install.packages("MCMCglmm")
+library(MCMCglmm)
+
+# sets prior distribution and creates a glm
+prior = list(R = list(V = 1, nu = 0.002), G = list(G1 = list(V=1, nu=0.002,alpha.mu=0, alpha.V=1000)))
+glm <-MCMCglmm(LD1~treatment.time,random=~sampleid, family="gaussian", data=dpc,prior=prior,nitt=75000,thin=25,burnin=5000)
+summary(glm)
+# post.mean l-95% CI u-95% CI eff.samp  pMCMC    
+# (Intercept)                -1.517   -1.960   -1.040     2404 <4e-04 ***
+#   treatment.timesctld.1       1.319    0.685    1.978     2404 <4e-04 ***
+#   treatment.timecontrol.0     2.569    1.899    3.219     2630 <4e-04 ***
+#   treatment.timecontrol.1     1.972    1.272    2.573     2575 <4e-04 ***
+# check to make sure you don't have autocorrelation with the reps (shown as "walks" in model traces)
+plot(glm)
+
+# calculating difference in magnitudes of t1 treated state and t1 healthy state using sampled sets of parameters
+delta=abs(glm$Sol[,"treatment.timesctld.1"])-abs(glm$Sol[,"treatment.timecontrol.1"])
+# 95% credible interval
+HPDinterval(delta)
+# lower      upper
+# var1 -1.2965 0.02663611
+
+# MCMC p-value
+if (is.na(table(delta<0)[2])) {
+  cat("p <",signif(1/length(delta),1))
+} else { cat("p =",signif(table(delta<0)[2]/length(delta),2)) }
+# p = 0.98
+# non significant p value indicates treated corals are indistinguishable from healthy controls at t1
+
+
 #### DESEQ ####
 
 # with multi-factor, multi-level design - using LRT
@@ -413,3 +503,74 @@ treated1_diseased0.p %>%
               dplyr::select(-V1, -V2), by = c("gene" = "gene")) %>%
   filter(str_detect(annot, 'NF-kappaB|peroxidas|TGF-beta|protein tyrosine kinase|fibrinogen|WD repeat-containing protein|apoptosis|extracellular matrix')) -> cherrypicking
 write.csv(cherrypicking, file = "inter_t1d0_cherrypicking.csv")
+
+
+#### GENE BOXPLOTS ####
+
+library(DESeq2)
+library(ggpubr)
+load("realModels.RData")
+
+# exporting counts of specific genes from immune-related searches
+Mcavernosa9810 <- plotCounts(dds, gene="Mcavernosa9810", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa9810, file = "Mcavernosa9810.csv")
+
+Mcavernosa43816 <- plotCounts(dds, gene="Mcavernosa43816", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa43816, file = "Mcavernosa43816.csv")
+
+Mcavernosa14879 <- plotCounts(dds, gene="Mcavernosa14879", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa14879, file = "Mcavernosa14879.csv")
+
+Mcavernosa12872 <- plotCounts(dds, gene="Mcavernosa12872", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa12872, file = "Mcavernosa12872.csv")
+
+Mcavernosa47647 <- plotCounts(dds, gene="Mcavernosa47647", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa47647, file = "Mcavernosa47647.csv")
+
+Mcavernosa50735 <- plotCounts(dds, gene="Mcavernosa50735", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa50735, file = "Mcavernosa50735.csv")
+
+Mcavernosa10679 <- plotCounts(dds, gene="Mcavernosa10679", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa10679, file = "Mcavernosa10679.csv")
+
+Mcavernosa61972 <- plotCounts(dds, gene="Mcavernosa61972", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa61972, file = "Mcavernosa61972.csv")
+
+Mcavernosa49779 <- plotCounts(dds, gene="Mcavernosa49779", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa49779, file = "Mcavernosa49779.csv")
+
+Mcavernosa5069 <- plotCounts(dds, gene="Mcavernosa5069", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa5069, file = "Mcavernosa5069.csv")
+
+Mcavernosa184695 <- plotCounts(dds, gene="Mcavernosa184695", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa184695, file = "Mcavernosa184695.csv")
+
+Mcavernosa102943 <- plotCounts(dds, gene="Mcavernosa102943", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa102943, file = "Mcavernosa102943.csv")
+
+Mcavernosa29964 <- plotCounts(dds, gene="Mcavernosa29964", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa29964, file = "Mcavernosa29964.csv")
+
+Mcavernosa20827 <- plotCounts(dds, gene="Mcavernosa20827", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa20827, file = "Mcavernosa20827.csv")
+
+Mcavernosa71973 <- plotCounts(dds, gene="Mcavernosa71973", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa71973, file = "Mcavernosa71973.csv")
+
+Mcavernosa126229 <- plotCounts(dds, gene="Mcavernosa126229", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa126229, file = "Mcavernosa126229.csv")
+
+Mcavernosa96261 <- plotCounts(dds, gene="Mcavernosa96261", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa96261, file = "Mcavernosa96261.csv")
+
+Mcavernosa162020 <- plotCounts(dds, gene="Mcavernosa162020", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa162020, file = "Mcavernosa162020.csv")
+
+Mcavernosa317111 <- plotCounts(dds, gene="Mcavernosa317111", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa317111, file = "Mcavernosa317111.csv")
+
+Mcavernosa43057 <- plotCounts(dds, gene="Mcavernosa43057", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa43057, file = "Mcavernosa43057.csv")
+
+Mcavernosa10151 <- plotCounts(dds, gene="Mcavernosa10151", intgroup="fate", returnData=TRUE)
+write.csv(Mcavernosa10151, file = "Mcavernosa10151.csv")

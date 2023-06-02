@@ -528,29 +528,29 @@ for(i in 1:length(sorted[,1])) {
 row.names(hubs)=gnames
 
 contrasting = colorRampPalette(rev(c("chocolate1","#FEE090","grey10", "cyan3","cyan")))(100)
-contrasting2 = colorRampPalette(rev(c("chocolate1","chocolate1","#FEE090","grey10", "cyan3","cyan")))(100)
-contrasting3 = colorRampPalette(rev(c("chocolate1","#FEE090","grey10", "cyan3","cyan","cyan")))(100)
+# contrasting2 = colorRampPalette(rev(c("chocolate1","chocolate1","#FEE090","grey10", "cyan3","cyan")))(100)
+# contrasting3 = colorRampPalette(rev(c("chocolate1","#FEE090","grey10", "cyan3","cyan","cyan")))(100)
 
 pdf(file="heatmap_top30_greenyellow.pdf", height=6, width=18)
-pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F,cluster_cols=F)
+pheatmap(hubs,scale="row",col=contrasting,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F,cluster_cols=F)
 dev.off()
 # pdf(file="heatmap_top30_darkred.pdf", height=6, width=16)
-# pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F,cluster_cols=F)
+# pheatmap(hubs,scale="row",col=contrasting,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F,cluster_cols=F)
 # dev.off()
 # pdf(file="heatmap_top30_grey60.pdf", height=6, width=22)
-# pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F,cluster_cols=F)
+# pheatmap(hubs,scale="row",col=contrasting,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F,cluster_cols=F)
 # dev.off()
 # pdf(file="heatmap_top30_purple.pdf", height=6, width=17)
-# pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F,cluster_cols=F)
+# pheatmap(hubs,scale="row",col=contrasting,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F,cluster_cols=F)
 # dev.off()
 # pdf(file="heatmap_top30_salmon.pdf", height=6, width=18)
-# pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F,cluster_cols=F)
+# pheatmap(hubs,scale="row",col=contrasting,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F,cluster_cols=F)
 # dev.off()
 # pdf(file="heatmap_top30_darkgreen.pdf", height=6, width=15)
-# pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F,cluster_cols=F)
+# pheatmap(hubs,scale="row",col=contrasting,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F,cluster_cols=F)
 # dev.off()
 # pdf(file="heatmap_top30_pink.pdf", height=6, width=14)
-# pheatmap(hubs,scale="row",col=contrasting2,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F,cluster_cols=F)
+# pheatmap(hubs,scale="row",col=contrasting,border_color=NA,treeheight_col=0,cex=0.9,cluster_rows=F,cluster_cols=F)
 # dev.off()
 
 
@@ -563,8 +563,7 @@ load(file = "data4wgcna.RData")
 load(file = "wgcnaData.RData");
 allkME =as.data.frame(signedKME(datt, MEs))
 
-colorh = labels2colors(moduleColors)
-hubgenes <- chooseTopHubInEachModule(datt, colorh, omitColors = "grey", 
+hubgenes <- chooseTopHubInEachModule(datt, moduleColors, omitColors = "grey", 
                                      power = 2, 
                                      type = "signed")
 hubgenes <-data.frame(hubgenes)
